@@ -7,3 +7,15 @@ This repository contains the example code files related to my blog - https://the
 Directory - timelapse_exposure_script
 
 Blog post - https://theretiredengineer.wordpress.com/2017/06/25/scripting-exposure-compensation-for-timelapse/
+
+### Timelapse Pan & Zoom Script
+
+Directory - timelapse_pan_zoom
+
+Blog post -
+
+### National Geographic Magazine Builder
+
+Directory - natgeo_script
+
+Blog post -
