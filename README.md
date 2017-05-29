@@ -19,3 +19,5 @@ Blog post -
 Directory - natgeo_script
 
 Blog post -
+
+To build cng2jpg: `gcc cng2jpg.c -Wall -o cng2jpg`

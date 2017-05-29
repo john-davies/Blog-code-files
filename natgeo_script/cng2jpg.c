@@ -10,7 +10,7 @@ int main( int argv, char *argc[] )
 	if( argv != 3 )
 	{
 		printf( "ERROR: wrong no of arguments\n" );
-		printf( "Usage: cng2jpg <source file> <destination file>");
+		printf( "Usage: cng2jpg <source file> <destination file>\n");
 		return EXIT_FAILURE;
 	}
 	else
