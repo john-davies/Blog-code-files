@@ -22,10 +22,10 @@
 
 originalXSize=0
 originalYSize=0
-initXSize=0
-initYSize=0
-finalXSize=0
-finalYSize=0
+startXSize=0
+startYSize=0
+endXSize=0
+endYSize=0
 outputXSize=0
 outputYSize=0
 startX=0
@@ -71,23 +71,75 @@ else
 fi
 
 # Run some sanity checks
+# Check that the movie images don't go outside the original image boundaries
+if [ $(( startX + startXSize )) -gt $originalXSize ]
+then
+	echo "# WARNING - Start X dimension outside original image"
+fi
+
+if [ $(( endX + endXSize )) -gt $originalXSize ]
+then
+	echo "# WARNING - End X dimension outside original image"
+fi
+
+if [ $(( startY + startYSize )) -gt $originalYSize ]
+then
+	echo "# WARNING - Start Y dimension outside original image"
+fi
+
+if [ $(( endY + endYSize )) -gt $originalYSize ]
+then
+	echo "# WARNING - End Y dimension outside original image"
+fi
+
+# Check that the aspect ratios stay the same. Multiply by 1000 to
+# avoid floating point arithmetic
+startAspectRatio=$(( ( $startXSize * 1000 ) / $startYSize ))
+endAspectRatio=$(( ( $endXSize * 1000 ) / $endYSize ))
+outputAspectRatio=$(( ( $outputXSize * 1000 ) / $outputYSize ))
+
+if [ $startAspectRatio -ne $endAspectRatio ]
+then
+	echo "# WARNING - start/end aspect ratio mismatch"
+fi
+
+if [ $endAspectRatio -ne $outputAspectRatio ]
+then
+	echo "# WARNING - end/output aspect ratio mismatch"
+fi
+
+if [ $startAspectRatio -ne $outputAspectRatio ]
+then
+	echo "# WARNING - start/output aspect ratio mismatch"
+fi
+
+# Check that the number of files match
+if [ $no_of_files -ne $noOfFrames ]
+then
+	echo "# WARNING - \"noOfFrames\" does not match number of frame images"
+fi
+
+# Check the start and end delay frame lengths
+if [ $(( startDelay + endDelay )) -ge $noOfFrames ]
+then
+	echo "# WARNING - start & end delays too long"
+fi
 
 # Read through the files & apply edits
 imageCount=0
 # Number of frames that need to be edited
 editFrames=$((noOfFrames - startDelay - endDelay))
 editFrameCount=1
-# Deltas for X & Y
+# Deltas for X & Y position and image size
 xpDiff=$(( endX - startX ))
 ypDiff=$(( endY - startY ))
-xsDiff=$(( finalXSize - initXSize ))
-ysDiff=$(( finalYSize - initYSize ))
+xsDiff=$(( endXSize - startXSize ))
+ysDiff=$(( endYSize - startYSize ))
 for file in *.jpg
 do
 	if [ $imageCount -lt $startDelay ]
 	then
-		#echo "Start: $out_path_string$file: $startX, $startY"
-		cropString="${initXSize}x${initYSize}+${startX}+${startY}"
+		cropString="${startXSize}x${startYSize}+${startX}+${startY}"
 		resizeString="\"${outputXSize}x${outputYSize}!\""
   elif [ $imageCount -lt $(( noOfFrames - endDelay )) ]
 	then
@@ -96,12 +148,10 @@ do
 		xs=$(( ( editFrameCount * xsDiff ) / editFrames ))
 		ys=$(( ( editFrameCount * ysDiff ) / editFrames ))
 		(( editFrameCount+=1))
-		#echo "Move: $out_path_string$file: $(( startX + xp )), $(( startY + yp ))"
-		cropString="$((initXSize+xs))x$((initYSize+ys))+$((startX+xp))+$((startY+yp))"
+		cropString="$((startXSize+xs))x$((startYSize+ys))+$((startX+xp))+$((startY+yp))"
 		resizeString="\"${outputXSize}x${outputYSize}!\""
 	else
-		#echo "End: $out_path_string$file: $endX, $endY"
-		cropString="${finalXSize}x${finalYSize}+${endX}+${endY}"
+		cropString="${endXSize}x${endYSize}+${endX}+${endY}"
 		resizeString="\"${outputXSize}x${outputYSize}!\""
 	fi
 
@@ -110,5 +160,3 @@ do
 
 	(( imageCount+=1 ))
 done
-
-# convert DSC_6539.jpg -crop 2638x1484+1004+308 -resize "1280x720!" output.jpg

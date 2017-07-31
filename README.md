@@ -18,6 +18,6 @@ Blog post -
 
 Directory - natgeo_script
 
-Blog post -
+Blog post - https://theretiredengineer.wordpress.com/2017/07/16/the-complete-national-geographic-dvd-on-linux/
 
 To build cng2jpg: `gcc cng2jpg.c -Wall -o cng2jpg`
