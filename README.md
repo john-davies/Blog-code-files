@@ -12,7 +12,7 @@ Blog post - https://theretiredengineer.wordpress.com/2017/06/25/scripting-exposu
 
 Directory - timelapse_pan_zoom
 
-Blog post -
+Blog post - https://theretiredengineer.wordpress.com/2017/09/10/timelapse-pan-and-zoom/
 
 ### National Geographic Magazine Builder
 
@@ -26,4 +26,12 @@ To build cng2jpg: `gcc cng2jpg.c -Wall -o cng2jpg`
 
 Directory - webcam_timelapse_script
 
+Blog post - https://theretiredengineer.wordpress.com/2017/10/01/timelapse-and-webcams/
+
+### LiDAR to PLY Converter
+
+Directory - lidar-ply
+
 Blog post -
+
+Run `lidar2ply.lua` with no command line options to get help
