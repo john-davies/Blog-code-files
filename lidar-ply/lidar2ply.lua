@@ -234,20 +234,17 @@ local minHeight = 1000
 
 heightData = {}          -- create the matrix
 local currentVertexNo = 0
-local currentRow = 1
+--local currentRow = 1
+local currentRow = tonumber(nrows)
 line = inputFile:read("*line")
 while line do
   -- Add a new row
   heightData[currentRow] = {}
   stripLine = string.gsub( line, "^%s*(.-)%s*$", "%1") --Trim string
   fields = stripLine:split(" ")
-  -- Check that we got the right number of columns
-  assert( #fields ~= ncols )
   -- Add row to array
-  --heightData[currentRow] = fields
   -- Parse row
   for i, v in ipairs(fields) do
-    --print( i, v, tonumber(v) )
     local vertex = {}
     vertex.heightValue = tonumber(v)
     if vertex.heightValue == tonumber(NODATA_value) then
@@ -268,11 +265,24 @@ while line do
       end
     end
   end
-  currentRow = currentRow + 1
+  --currentRow = currentRow + 1
+  currentRow = currentRow - 1
   line = inputFile:read("*line")
 end
--- Check that we got the right number of rows
-assert( currentRow - 1 ~= nrows )
+
+--[[ Debug
+for r=nrows, 1, -1 do
+  io.write( "r:" .. r .. " - ")
+  for c=1, ncols do
+    io.write( heightData[r][c].heightValue .. "/" )
+    if( heightData[r][c].number ~= nil ) then
+      io.write( heightData[r][c].number .. " ")
+    else
+      io.write( "* " )
+    end
+  end
+  io.write( "\n" )
+end]]
 
 print( "Missing data: " .. missingData )
 print( "Max height: " .. maxHeight )
@@ -283,8 +293,6 @@ print( "Min height: " .. minHeight )
 -- -------------------------------------------------
 local haveImage = false
 local imageData = {}
-
-print( haveRGB, haveImage)
 
 -- Check for image overlay or false colour
 if haveRGB == false and imageFile ~= nil then
@@ -301,10 +309,10 @@ if haveRGB == false and imageFile ~= nil then
   if ( imageRows == tonumber(nrows) ) and ( imageCols == tonumber(ncols) ) then
     print( "Image size OK")
     -- Initially fill the image array with black pixels
-    for i=1,imageRows do
-      imageData[i] = {}     -- create a new row
-      for j=1,imageCols do
-        imageData[i][j] = "0 0 0"
+    for y=1,imageRows do
+      imageData[y] = {}     -- create a new row
+      for x=1,imageCols do
+        imageData[y][x] = "0 0 0"
       end
     end
 
@@ -317,7 +325,7 @@ if haveRGB == false and imageFile ~= nil then
       local pixel = fields[1]:split(",")
       local colour = trim(fields[2]):split(" ")
       local values = colour[1]:gsub("[()]",""):split(",")
-      imageData[tonumber(pixel[2])+1][tonumber(pixel[1])+1] = values[1] .. " " .. values[2] .. " " .. values[3]
+      imageData[imageRows-(tonumber(pixel[2]))][tonumber(pixel[1])+1] = values[1] .. " " .. values[2] .. " " .. values[3]
       imageLine = imageFile:read("*line")
     end
     haveImage = true
@@ -365,7 +373,7 @@ for row=1,nrows-1 do
   end
 end
 
-print( "Writing " .. ( nrows * ncols ) - missingData .. " verticies")
+print( "Writing " .. math.floor( ( nrows * ncols ) - missingData ) .. " verticies")
 print( "Writing " .. #faceList .. " faces")
 
 outputFile:write( "ply\n" )
@@ -388,7 +396,7 @@ outputFile:write( "end_header\n" )
 
 -- Verticies
 
-for r=1,nrows do
+for r=nrows,1,-1 do
   for c=1,ncols do
     local currentHeight = tonumber(heightData[r][c].heightValue)
     if currentHeight ~= tonumber(NODATA_value) then
@@ -407,7 +415,7 @@ for r=1,nrows do
         RGB = imageData[r][c]
       end
       -- Make all normals point "up", make scale ( value ) = 1.0
-      outputFile:write( ( r * cellsize ) + xoffset .. " " .. ( c * cellsize ) + yoffset .. " " .. currentHeight + zoffset .. " 0.0 0.0 1.0 " .. RGB .. "\n" )
+      outputFile:write( ( (c-1) * cellsize ) + xoffset .. " " .. ( (r-1) * cellsize ) + yoffset .. " " .. currentHeight + zoffset .. " 0.0 0.0 1.0 " .. RGB .. "\n" )
     end
   end
 end

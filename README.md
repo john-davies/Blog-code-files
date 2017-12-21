@@ -32,6 +32,6 @@ Blog post - https://theretiredengineer.wordpress.com/2017/10/01/timelapse-and-we
 
 Directory - lidar-ply
 
-Blog post -
+Blog post - https://theretiredengineer.wordpress.com/2017/12/10/open-lidar-data/
 
 Run `lidar2ply.lua` with no command line options to get help
