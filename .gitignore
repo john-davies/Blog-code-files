@@ -1,4 +1,4 @@
 # Gitignore fie for Blog Code Files
 
 #Executables ( easier to list these manually )
-LED_PANEL/blinkendebug
+LED_Panel/blinkendebug
