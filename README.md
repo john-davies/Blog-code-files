@@ -2,6 +2,12 @@
 
 This repository contains the example code files related to my blog - https://theretiredengineer.wordpress.com/ In general each directory relates to a blog post and a link to that post is given below. All files, unless otherwise stated, are released under GPL V3.
 
+### LED Panel 
+
+Directory -  LED_Panel
+
+Blog post -
+
 ### Timelapse Exposure Script
 
 Directory - timelapse_exposure_script
