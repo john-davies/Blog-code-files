@@ -1,4 +1,10 @@
 # Gitignore fie for Blog Code Files
 
-#Executables ( easier to list these manually )
+# LED Panel
+# Executables ( easier to list these manually )
 LED_Panel/blinkdebug
+LED_Panel/blinkpanel
+
+# Other build related files
+LED_Panel/led-matrix-c.h
+LED_Panel/librgbmatrix.a

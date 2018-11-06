@@ -1,0 +1,23 @@
+Dependencies
+============
+
+These executables need the following dependencies to build:
+
+blinkdebug
+----------
+
+From: https://github.com/john-davies/blinkenlights-colour
+
+  blib-1.1.7 library
+
+blinkpanel
+----------
+
+From: https://github.com/john-davies/blinkenlights-colour
+
+  blib-1.1.7 library
+
+From: https://github.com/hzeller/rpi-rgb-led-matrix
+
+  led-matrix-c.h
+  librgbmatrix.a
