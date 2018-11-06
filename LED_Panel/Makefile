@@ -8,3 +8,6 @@ blinkdebug: blinkdebug.c
 
 blinkpanel: blinkpanel.c
 	$(CC) $(CFLAGS) $(INCLUDES) blinkpanel.c -o blinkpanel librgbmatrix.a $(LIBS) -lstdc++
+
+img2bml: img2bml.c
+	$(CC) $(CFLAGS) img2bml.c -o img2bml -lm
