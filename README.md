@@ -2,7 +2,7 @@
 
 This repository contains the example code files related to my blog - https://theretiredengineer.wordpress.com/ In general each directory relates to a blog post and a link to that post is given below. All files, unless otherwise stated, are released under GPL V3.
 
-### LED Panel 
+### LED Panel
 
 Directory -  LED_Panel
 
@@ -27,6 +27,9 @@ Directory - natgeo_script
 Blog post - https://theretiredengineer.wordpress.com/2017/07/16/the-complete-national-geographic-dvd-on-linux/
 
 To build cng2jpg: `gcc cng2jpg.c -Wall -o cng2jpg`
+
+mm.sh: builds a PDF of the images
+ocr.sh: builds a PDF and extracts the text of each page using tesseract ocr.
 
 ### Webcam Timelapse Creator
 
