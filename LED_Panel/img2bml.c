@@ -38,6 +38,7 @@ int main( int argc, char *argv[] )
 
   // Try to read file
   int rows, columns, n;
+  int channels;
   unsigned char *data = stbi_load( argv[1], &columns, &rows, &n, 0);
   if( data == NULL )
   {
@@ -69,9 +70,19 @@ int main( int argc, char *argv[] )
     return EXIT_FAILURE;
   }
 
+  // If the colour depth > 3 then set output channels to 3 so as to ignore alpha channels
+  if( n > 3 )
+  {
+    channels = 3;
+  }
+  else
+  {
+    channels = n;
+  }
+
   fprintf( output_file, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" );
   fprintf( output_file, "<blm width=\"%d\" height=\"%d\" bits=\"8\" channels=\"%d\">\n",
-                          columns, rows, n );
+                          columns, rows, channels );
   fprintf( output_file, "  <header>\n" );
   fprintf( output_file, "    <title>Created by img2bml</title>\n" );
   fprintf( output_file, "    <url>https://github.com/john-davies/Blog-code-files/tree/master/LED_Panel</url>\n" );
