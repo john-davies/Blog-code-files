@@ -2,7 +2,7 @@
  //
  // Copyright (C) 2018 John Davies
  //
- // Usage: img2bml <file name>
+ // Usage: img2bml <file name> [duration]
  //
 
  // This program is free software: you can redistribute it and/or modify
@@ -32,18 +32,30 @@ int main( int argc, char *argv[] )
   if( argc == 1 )
   {
     printf( "ERROR - no image file specified\n" );
-    printf( "  Usage is img2bml <file name>\n" );
+    printf( "  Usage is img2bml <file name> [duration]\n" );
     return EXIT_FAILURE;
   }
 
   // Try to read file
   int rows, columns, n;
   int channels;
+  int duration;
   unsigned char *data = stbi_load( argv[1], &columns, &rows, &n, 0);
   if( data == NULL )
   {
     printf( "ERROR - failed to read file\n" );
     return EXIT_FAILURE;
+  }
+
+  // Check for duration needed
+  if( argv[2] != NULL )
+  {
+    duration = atoi( argv[2] );
+  }
+  // Check for error or set default
+  if( duration == 0 )
+  {
+    duration = 100;
   }
 
   // Process data
@@ -87,7 +99,7 @@ int main( int argc, char *argv[] )
   fprintf( output_file, "    <title>Created by img2bml</title>\n" );
   fprintf( output_file, "    <url>https://github.com/john-davies/Blog-code-files/tree/master/LED_Panel</url>\n" );
   fprintf( output_file, "  </header>\n" );
-  fprintf( output_file, "  <frame duration=\"100\">\n" );
+  fprintf( output_file, "  <frame duration=\"%d\">\n", duration );
 
   // Loop through rows & columns
   int r, c;
