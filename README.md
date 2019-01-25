@@ -28,8 +28,8 @@ Blog post - https://theretiredengineer.wordpress.com/2017/07/16/the-complete-nat
 
 To build cng2jpg: `gcc cng2jpg.c -Wall -o cng2jpg`
 
-mm.sh: builds a PDF of the images
-ocr.sh: builds a PDF and extracts the text of each page using tesseract ocr.
+* mm.sh: builds a PDF of the images
+* ocr.sh: builds a PDF and extracts the text of each page using tesseract ocr.
 
 ### Webcam Timelapse Creator
 
