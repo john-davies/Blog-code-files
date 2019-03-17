@@ -12,10 +12,19 @@ rm ${1}/*.txt
 rm ${1}/*.pdf
 
 # Convert the cng files to jpg
+# Magazine page file names are usually of the format NGM_yyyy_mm_ppp_x.cng
+# Other pages like additional maps have the format yyyy_mm_description.cng
+# Process the magazine pages first then the maps
 echo "Converting files"
-for filename in $(find ${1}/*.cng -maxdepth 1 -type f)
+#for filename in $(find ${1}/*.cng -maxdepth 1 -type f)
+for filename in $( ls -1 ${1}/[!0-9]*.cng )
 do
 	./cng2jpg ${filename} ${filename}.jpg
+done
+# Force the maps to be at the end of the list by prepending "zz" to the filename
+for filename in $( ls -1 ${1}/[0-9]*.cng )
+do
+	./cng2jpg ${filename} ${filename/\//"/zz_"}.jpg
 done
 
 # Renumber the jpgs
@@ -34,9 +43,13 @@ do
 	name=${tmp%.*}   	# remove suffix starting with "."
 	# Run the two conversions
 	convert ${filename} ${RESIZE} ${THRESHOLD1} ${1}/${name}_1.jpg
-	tesseract ${1}/${name}_1.jpg ${1}/${name}_1
+	tesseract ${1}/${name}_1.jpg ${1}/${name}
+	# Combine any words hyphenated across lines
+	sed -z 's/-\n//g' ${1}/${name}.txt > ${1}/${name}_1.txt
 	convert ${filename} ${RESIZE} ${THRESHOLD2} ${1}/${name}_2.jpg
-	tesseract ${1}/${name}_2.jpg ${1}/${name}_2
+	tesseract ${1}/${name}_2.jpg ${1}/${name}
+	# Combine any words hyphenated across lines
+	sed -z 's/-\n//g' ${1}/${name}.txt > ${1}/${name}_2.txt
 	# Check number of words failing spell check
 	FAIL1=`cat ${1}/${name}_1.txt | aspell --extra-dicts en_US list | sort -u | wc -l`
 	TOTAL1=`wc -w < ${1}/${name}_1.txt`
