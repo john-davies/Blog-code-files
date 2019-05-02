@@ -2,6 +2,14 @@
 
 This repository contains the example code files related to my blog - https://theretiredengineer.wordpress.com/ In general each directory relates to a blog post and a link to that post is given below. All files, unless otherwise stated, are released under GPL V3.
 
+### Panorama Photo Exposure Correction Script
+
+Directory - panorama_exposure_script
+
+Blog post - https://theretiredengineer.wordpress.com/2019/06/16/exposure-compensation-for-360-degree-panoramas/
+
+Refer to README in that directory for documentation.
+
 ### LED Panel
 
 Directory -  LED_Panel
