@@ -36,16 +36,9 @@ Blog posts
 
 * https://theretiredengineer.wordpress.com/2017/07/16/the-complete-national-geographic-dvd-on-linux/
 * https://theretiredengineer.wordpress.com/2019/03/10/national-geographic-magazine-ocr/
+* https://theretiredengineer.wordpress.com/2019/04/21/national-geographic-magazine-full-text-search/
 
-To build cng2jpg: `gcc cng2jpg.c -Wall -o cng2jpg`
-
-* mm.sh: builds a PDF of the images
-* ocr.sh: builds a PDF and extracts the text of each page using tesseract ocr.
-* ocr_embed.sh: builds a PDF and includes the ocr text in the PDF
-
-In each case the scripts are run as follows:
-
-`./ocr_embed.sh <dir containing cng files>`
+Refer to README in that directory for documentation.
 
 ### Webcam Timelapse Creator
 
