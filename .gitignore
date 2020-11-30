@@ -14,3 +14,19 @@ LED_Panel/img2bml
 LED_Panel/led-matrix-c.h
 LED_Panel/librgbmatrix.a
 LED_Panel/stb_image.h
+
+# Globe
+# =====
+
+# Executables ( easier to list these manually )
+# -----------
+globe/rescale
+globe/gradient
+globe/makeimage
+
+# Other build related files
+# -------------------------
+globe/stb_image.h
+globe/libattopng.c
+globe/libattopng.h
+
