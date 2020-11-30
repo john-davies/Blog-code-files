@@ -29,4 +29,5 @@ globe/makeimage
 globe/stb_image.h
 globe/libattopng.c
 globe/libattopng.h
+globe/*.png
 
