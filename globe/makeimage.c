@@ -26,7 +26,7 @@
 #define OUTPUT_FILE_NAME_SIZE 1024
 
 // Used for writing image
-#define RGBA(r, g, b, a) ((r) | ((g) << 8) | ((b) << 16) | ((a) << 24))
+#define RGB(r, g, b ) ((r) | ((g) << 8) | ((b) << 16))
 
 // Array to store original file and mask file
 // Note that this may not be portable
@@ -43,15 +43,16 @@ int main( int argc, char *argv[] )
   FILE *mask_file;
   int xsize;
   int ysize;
+  int longitude;
   FILE* output_file;
   char output_file_name[OUTPUT_FILE_NAME_SIZE];
 
   printf( "makeimage, v0.1\n" );
 
   // Check command line
-  if( argc != 4 )
+  if( ( argc != 4 ) && ( argc != 5 ) )
   {
-    printf( "ERROR: usage is: makeimage <input file> <mask file> <xsize>\n" );
+    printf( "ERROR: usage is: makeimage <input file> <mask file> <xsize> [longitude]\n" );
     printf( "  ( output will be written to <input file>.png )\n" );
     return EXIT_FAILURE;
   }
@@ -75,17 +76,29 @@ int main( int argc, char *argv[] )
     printf( "ERROR: invalid X size: %s\n", argv[2] );
     return EXIT_FAILURE;
   }
+  // Check long parameter
+  if( argc == 5 )
+  {
+    longitude = atoi(argv[4]);
+    if( longitude < -180 || longitude > 180 )
+    {
+      // Out of range so set to 0
+      printf( "WARNING: invalid longitude value: %s\n", argv[4] );
+      printf( "  Must be between -180 and +180, setting to 0\n" );
+      longitude = 0;
+    }
+  }
+  else
+  {
+    longitude = 0;
+  }
+  printf( "Image will be centred on Longitude: %d degrees\n", longitude );
   // Set ysize
   ysize = xsize / 2;
 
-  // Check output file
+  // Create output file name
   snprintf( output_file_name, OUTPUT_FILE_NAME_SIZE, "%s.png", argv[1] );
-/*  output_file = fopen( output_file_name, "w" );
-  if( output_file == NULL )
-  {
-    printf( "ERROR: could not open output file: %s.png\n", argv[1] );
-    return EXIT_FAILURE;
-  }*/
+
   // Read input file into Array
   int count = 0;
   int c1, c2;
@@ -154,12 +167,22 @@ int main( int argc, char *argv[] )
   // Steps for shading
   int land_step = max_height / LAND_ROWS;
   int sea_step = -min_height / SEA_ROWS;
+  int long_offset;
+  if( longitude >= 0 )
+  {
+    long_offset = longitude * ( xsize / 360 );
+  }
+  else
+  {
+    long_offset = ( 360 + longitude ) * ( xsize / 360 );
+  }
   printf( "Building image file\n" );
   for( int y = 0; y < ysize; y++ )
   {
     for( int x = 0; x < xsize; x++ )
     {
-      int r, g, b, a;
+      int xd = ( x + long_offset ) % xsize;
+      int r, g, b;
       int idx;
       // Process mask
       // http://ddfe.curtin.edu.au/models/Earth2014/readme_earth2014.dat
@@ -172,38 +195,36 @@ int main( int argc, char *argv[] )
       // 6 - ice cover, bedrock below MSL
       // 7 - ice shelf
       // 8 - ice covered lake (Vostok)
-      switch( mask[x][y] )
+      switch( mask[xd][y] )
       {
         case 0:
         case 1:
-          if( original[x][y] < 0 )
+          if( original[xd][y] < 0 )
           {
             idx = 0;
           }
           else
           {
-            idx = original[x][y] / land_step;
+            idx = original[xd][y] / land_step;
           }
           r = land_gradient[idx][0];
           g = land_gradient[idx][1];
           b = land_gradient[idx][2];
-          a = land_gradient[idx][3];
           break;
         case 2:
         case 3:
         case 4:
-          if( original[x][y] > 0 )
+          if( original[xd][y] > 0 )
           {
             idx = 0;
           }
           else
           {
-            idx = -original[x][y] / sea_step;
+            idx = -original[xd][y] / sea_step;
           }
           r = sea_gradient[idx][0];
           g = sea_gradient[idx][1];
           b = sea_gradient[idx][2];
-          a = sea_gradient[idx][3];
           break;
         case 5:
         case 6:
@@ -212,22 +233,21 @@ int main( int argc, char *argv[] )
           r = 255;
           g = 255;
           b = 255;
-          a = 255;
           break;
         default:
           printf( "ERROR: Invalid mask value found, setting to 0,0,0\n" );
           r = 0;
           g = 0;
           b = 0;
-          a = 0;
           break;
       }
-      image[x][y] = RGBA( r, g, b, 255);
+      //image[x][y] = RGBA( r, g, b, 255);
+      image[x][y] = RGB( r, g, b );
     }
   }
   // Write image to file
   printf( "Writing image file\n" );
-  libattopng_t* png = libattopng_new( xsize, ysize, PNG_RGBA );
+  libattopng_t* png = libattopng_new( xsize, ysize, PNG_RGB );
   for( int y = 0; y < ysize; y++ )
   {
     for( int x = 0; x < xsize; x++ )

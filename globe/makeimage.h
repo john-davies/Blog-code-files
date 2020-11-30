@@ -19,6 +19,8 @@
 #define SEA_ROWS 230
 #define SEA_COLUMNS 4
 
+// Note that the alpha channel is included but not currently used
+
 int land_gradient[LAND_ROWS][LAND_COLUMNS] = {
   {2, 136, 50, 255 },
   {4, 137, 49, 255 },
