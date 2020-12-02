@@ -23,9 +23,11 @@ LED_Panel/stb_image.h
 globe/rescale
 globe/gradient
 globe/makeimage
+globe/makeglobe
 
 # Other build related files
 # -------------------------
+globe/*.o
 globe/stb_image.h
 globe/libattopng.c
 globe/libattopng.h
