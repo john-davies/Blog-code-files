@@ -160,39 +160,13 @@ int main( int argc, char *argv[] )
   int land_step = max_height / LAND_ROWS;
   int sea_step = -min_height / SEA_ROWS;
 
-  printf( "Processing image file\n" );
-  float planet_circumferance = 2 * M_PI * PLANET_RADIUS;
-  int total_verticies = 0;
-  // First a dummy run through to get the number of verticies
-  for( int y = 0; y < ysize; y++ )
-  {
-    // Calculate latitude
-    // Note 2nd term correction factor, e.g.
-    // The 5 arc-min grids contain 2,160 x 4,320 data points, are 18 MB in
-    // size and extend from -90+5/120 deg to  +90-5/120 deg in latitude
-    // direction, and from -180+5/120 deg to +180-5/120 deg in longitude direction.
-    float latitude = -90.0 + ( 180.0 / (float)ysize / 2 ) + ( (float)y * 180.0 ) / (float)ysize;
-    // Calculate number of steps at this latitude
-    // Radius at lat alpha degrees = radius of earth * cos( alpha )
-    float radius = PLANET_RADIUS * cos( latitude * M_PI / 180.0 );
-    // Calculate step for loop
-    float step = planet_circumferance / ( 2 * M_PI * radius );
-    // Loop through longitude values
-    float x = 0;
-    while( (int)x < xsize )
-    {
-      total_verticies ++;;
-      x += step;
-    }
-  }
-  printf( "Total verticies: %d\n", total_verticies );
   // Write 3D model to file
   printf( "Writing 3D file\n" );
   // Write PLY header information
   fprintf( output_file, "ply\n" );
   fprintf( output_file, "format ascii 1.0\n" );
   fprintf( output_file, "comment created by makeglobe\n" );
-  fprintf( output_file, "element vertex %d\n", total_verticies );
+  fprintf( output_file, "element vertex %d\n", xsize * ysize );
   fprintf( output_file, "property float x\n" );
   fprintf( output_file, "property float y\n" );
   fprintf( output_file, "property float z\n" );
@@ -202,22 +176,19 @@ int main( int argc, char *argv[] )
   fprintf( output_file, "property float nx\n" );
   fprintf( output_file, "property float ny\n" );
   fprintf( output_file, "property float nz\n" );
+  fprintf( output_file, "element face %d\n", xsize * ( ysize-1 ) );
+  fprintf( output_file, "property list int int vertex_index\n" );
   fprintf( output_file, "end_header\n" );
 
-  // Now a second run through to get the vertex values
+  // First write the verticies
+  printf( "  Writing verticies ...\n");
   for( int y = 0; y < ysize; y++ )
   {
     float latitude = -90.0 + ( 180.0 / (float)ysize / 2 ) + ( (float)y * 180.0 ) / (float)ysize;
-    float radius = PLANET_RADIUS * cos( latitude * M_PI / 180.0 );
-    // Calculate step for loop
-    float step = planet_circumferance / ( 2 * M_PI * radius );
-
     //printf( "Lat: %.6f, Step: %.6f, Count: %d\n", latitude, step, (int)(xsize/step) );
 
-
     // Loop through longitude values
-    float x = 0;
-    while( (int)x < xsize )
+    for( int x = 0; x < xsize; x++ )
     {
       // Calculate longitude value
       // See note above about correction factor
@@ -293,10 +264,31 @@ int main( int argc, char *argv[] )
       }
       // Write values to ply file
       fprintf( output_file, "%.6f %.6f %.6f %d %d %d %.6f %.6f %.6f\n", xc, yc, zc, r, g, b, nxc, nyc, nzc );
-
-      x += step;
     }
     //printf( "\n" );
+  }
+
+  // Then the faces
+  printf( "  Writing faces ...\n");
+  for( int y = 0; y < ysize - 1; y++ )
+  {
+    for( int x = 0; x < xsize - 1; x++ )
+    {
+      fprintf( output_file, "4 %d %d %d %d\n",
+                            ( x + ( y * xsize ) ), // bottom left
+                            ( ( x + 1 ) + ( y * xsize ) ), // bottom right
+                            ( ( x + 1 ) + ( ( y + 1 ) * xsize ) ), // top right
+                            ( x + ( ( y + 1 ) * xsize ) ) // top left
+                          );
+    }
+    // Loop back to start
+    fprintf( output_file, "4 %d %d %d %d\n",
+                          ( ( xsize - 1 ) + ( y * xsize ) ), // bottom left
+                          ( 0 + ( y * xsize ) ), // bottom right
+                          ( 0 + ( ( y + 1 ) * xsize ) ), // top right
+                          ( ( xsize - 1 ) + ( ( y + 1 ) * xsize ) ) // top left
+                        );
+
   }
 
   fclose( output_file );
