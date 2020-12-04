@@ -34,6 +34,9 @@ int16_t original[SIZE_X][SIZE_Y];
 int16_t mask[SIZE_X][SIZE_Y];
 int image[SIZE_X][SIZE_Y];
 
+unsigned char land_gradient[LAND_ROWS][LAND_COLUMNS];
+unsigned char sea_gradient[SEA_ROWS][SEA_COLUMNS];
+
 int max_height;
 int min_height;
 
@@ -41,18 +44,19 @@ int main( int argc, char *argv[] )
 {
   FILE* input_file;
   FILE *mask_file;
+  FILE *terrain_LUT_file;
+  FILE *bath_LUT_file;
   int xsize;
   int ysize;
   int longitude;
-  FILE* output_file;
   char output_file_name[OUTPUT_FILE_NAME_SIZE];
 
   printf( "makeimage, v0.1\n" );
 
   // Check command line
-  if( ( argc != 4 ) && ( argc != 5 ) )
+  if( ( argc != 6 ) && ( argc != 7 ) )
   {
-    printf( "ERROR: usage is: makeimage <input file> <mask file> <xsize> [longitude]\n" );
+    printf( "ERROR: usage is: makeimage <input file> <mask file> <terrain LUT> <bathymetry LUT> <xsize> [longitude]\n" );
     printf( "  ( output will be written to <input file>.png )\n" );
     return EXIT_FAILURE;
   }
@@ -69,17 +73,33 @@ int main( int argc, char *argv[] )
     printf( "ERROR: could not open mask file: %s\n", argv[1] );
     return EXIT_FAILURE;
   }
+  // Read terrain LUT
+  terrain_LUT_file = fopen( argv[3], "r" );
+  // Read bathymetry LUT
+  if( terrain_LUT_file == NULL )
+  {
+    printf( "ERROR: could not open terrain LUT file: %s\n", argv[3] );
+    return EXIT_FAILURE;
+  }
+  // Read bathymetry LUT
+  bath_LUT_file = fopen( argv[4], "r" );
+  // Read bathymetry LUT
+  if( bath_LUT_file == NULL )
+  {
+    printf( "ERROR: could not open bathymetry LUT file: %s\n", argv[3] );
+    return EXIT_FAILURE;
+  }
   // Check xsize factor
-  xsize = atoi( argv[3] );
+  xsize = atoi( argv[5] );
   if( ( xsize < 1 ) || ( xsize > SIZE_X ) || ( xsize % 2 != 0 ) )
   {
-    printf( "ERROR: invalid X size: %s\n", argv[2] );
+    printf( "ERROR: invalid X size: %s\n", argv[5] );
     return EXIT_FAILURE;
   }
   // Check long parameter
-  if( argc == 5 )
+  if( argc == 7 )
   {
-    longitude = atoi(argv[4]);
+    longitude = atoi(argv[6]);
     if( longitude < -180 || longitude > 180 )
     {
       // Out of range so set to 0
@@ -163,6 +183,72 @@ int main( int argc, char *argv[] )
     }
   }
   printf( "%d values read\n", count );
+  // Read terrain LUT into array
+  unsigned char channel[LAND_ROWS];
+  // Read red channel
+  if( fread( channel, LAND_ROWS, 1, terrain_LUT_file ) != 1 )
+  {
+    printf( "ERROR: unexpected EOF reached while reading terrain LUT red channel\n" );
+    return EXIT_FAILURE;
+  }
+  for( int x = 0; x < LAND_ROWS; x++ )
+  {
+    land_gradient[x][0] = channel[x];
+  }
+  // Read green channel
+  if( fread( channel, LAND_ROWS, 1, terrain_LUT_file ) != 1 )
+  {
+    printf( "ERROR: unexpected EOF reached while reading terrain LUT green channel\n" );
+    return EXIT_FAILURE;
+  }
+  for( int x = 0; x < LAND_ROWS; x++ )
+  {
+    land_gradient[x][1] = channel[x];
+  }
+  // Read blue channel
+  if( fread( channel, LAND_ROWS, 1, terrain_LUT_file ) != 1 )
+  {
+    printf( "ERROR: unexpected EOF reached while reading terrain LUT blue channel\n" );
+    return EXIT_FAILURE;
+  }
+  for( int x = 0; x < LAND_ROWS; x++ )
+  {
+    land_gradient[x][2] = channel[x];
+  }
+
+  // Read bathymetry LUT into array
+  unsigned char sea_channel[SEA_ROWS];
+  // Read red channel
+  if( fread( sea_channel, SEA_ROWS, 1, bath_LUT_file ) != 1 )
+  {
+    printf( "ERROR: unexpected EOF reached while reading bath LUT red channel\n" );
+    return EXIT_FAILURE;
+  }
+  for( int x = 0; x < SEA_ROWS; x++ )
+  {
+    sea_gradient[x][0] = sea_channel[x];
+  }
+  // Read green channel
+  if( fread( sea_channel, SEA_ROWS, 1, bath_LUT_file ) != 1 )
+  {
+    printf( "ERROR: unexpected EOF reached while reading bath LUT green channel\n" );
+    return EXIT_FAILURE;
+  }
+  for( int x = 0; x < SEA_ROWS; x++ )
+  {
+    sea_gradient[x][1] = sea_channel[x];
+  }
+  // Read blue channel
+  if( fread( sea_channel, SEA_ROWS, 1, bath_LUT_file ) != 1 )
+  {
+    printf( "ERROR: unexpected EOF reached while reading bath LUT blue channel\n" );
+    return EXIT_FAILURE;
+  }
+  for( int x = 0; x < SEA_ROWS; x++ )
+  {
+    sea_gradient[x][2] = sea_channel[x];
+  }
+
   // Write image
   // Steps for shading
   int land_step = max_height / LAND_ROWS;
@@ -222,9 +308,9 @@ int main( int argc, char *argv[] )
           {
             idx = -original[xd][y] / sea_step;
           }
-          r = sea_gradient[idx][0];
-          g = sea_gradient[idx][1];
-          b = sea_gradient[idx][2];
+          r = sea_gradient[SEA_ROWS - 1 - idx][0];
+          g = sea_gradient[SEA_ROWS - 1 - idx][1];
+          b = sea_gradient[SEA_ROWS - 1 - idx][2];
           break;
         case 5:
         case 6:
