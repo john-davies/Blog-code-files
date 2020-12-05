@@ -103,7 +103,7 @@ int main( int argc, char *argv[] )
     if( longitude < -180 || longitude > 180 )
     {
       // Out of range so set to 0
-      printf( "WARNING: invalid longitude value: %s\n", argv[4] );
+      printf( "WARNING: invalid longitude value: %s\n", argv[6] );
       printf( "  Must be between -180 and +180, setting to 0\n" );
       longitude = 0;
     }
