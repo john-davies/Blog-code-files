@@ -2,6 +2,14 @@
 
 This repository contains the example code files related to my blog - https://theretiredengineer.wordpress.com/ In general each directory relates to a blog post and a link to that post is given below. All files, unless otherwise stated, are released under GPL V3.
 
+### Terrain Map and 3D Globe Creator
+
+Directory - globe
+
+Blog posts
+* https://theretiredengineer.wordpress.com/2021/01/24/earth-terrain-model-1/
+* https://theretiredengineer.wordpress.com/2021/01/31/earth-terrain-model-2/
+
 ### Panorama Photo Exposure Correction Script
 
 Directory - panorama_exposure_script
