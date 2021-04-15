@@ -24,6 +24,7 @@ globe/rescale
 globe/gradient
 globe/makeimage
 globe/makeglobe
+globe/tif2bin
 
 # Other build related files
 # -------------------------
@@ -32,4 +33,3 @@ globe/stb_image.h
 globe/libattopng.c
 globe/libattopng.h
 globe/*.png
-

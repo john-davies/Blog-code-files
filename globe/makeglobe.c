@@ -1,4 +1,4 @@
-// makeglobe.cpp - 3D model creator
+// makeglobe.c - 3D model creator
 // Copyright (C) 2020 John Davies
 //
 // This program is free software: you can redistribute it and/or modify
@@ -47,18 +47,19 @@ int main( int argc, char *argv[] )
   FILE *mask_file;
   int xsize;
   int ysize;
+  int planet_radius;
   FILE* output_file;
   FILE *terrain_LUT_file;
   FILE *bath_LUT_file;
   int magnification;
   char output_file_name[OUTPUT_FILE_NAME_SIZE];
 
-  printf( "makeimage, v0.1\n" );
+  printf( "makeglobe, v0.1\n" );
 
   // Check command line
-  if( ( argc != 6 ) && ( argc != 7 ) )
+  if( ( argc != 7 ) && ( argc != 8 ) )
   {
-    printf( "ERROR: usage is: makeglobe <input file> <mask file> <terrain LUT> <bathymetry LUT> <xsize> [magnification]\n" );
+    printf( "ERROR: usage is: makeglobe <input file> <mask file> <terrain LUT> <bathymetry LUT> <xsize> <planet radius> [magnification]\n" );
     printf( "  ( output will be written to <input file>.ply )\n" );
     return EXIT_FAILURE;
   }
@@ -104,17 +105,24 @@ int main( int argc, char *argv[] )
   xsize = atoi( argv[5] );
   if( ( xsize < 1 ) || ( xsize > SIZE_X ) || ( xsize % 2 != 0 ) )
   {
-    printf( "ERROR: invalid X size: %s\n", argv[2] );
+    printf( "ERROR: invalid X size: %s\n", argv[5] );
+    return EXIT_FAILURE;
+  }
+  // Check planet radius
+  planet_radius = atoi( argv[6] );
+  if( planet_radius < 1 )
+  {
+    printf( "ERROR: invalid planet radius: %s\n", argv[6] );
     return EXIT_FAILURE;
   }
   // Check long parameter
-  if( argc == 7 )
+  if( argc == 8 )
   {
-    magnification = atoi(argv[6]);
+    magnification = atoi(argv[7]);
     if( magnification < 0 )
     {
       // Out of range so set to 0
-      printf( "WARNING: invalid magnification value: %s\n", argv[6] );
+      printf( "WARNING: invalid magnification value: %s\n", argv[7] );
       printf( "  Must be > 0, setting to 1\n" );
       magnification = 1;
     }
@@ -264,8 +272,8 @@ int main( int argc, char *argv[] )
 
   // Write model
   // Steps for shading
-  int land_step = max_height / LAND_ROWS;
-  int sea_step = -min_height / SEA_ROWS;
+  float land_step = (float) max_height / (float) LAND_ROWS;
+  float sea_step = (float) -min_height / (float) SEA_ROWS;
 
   // Write 3D model to file
   printf( "Writing 3D file\n" );
@@ -302,13 +310,13 @@ int main( int argc, char *argv[] )
       float longitude = -180.0 + ( 360.0 / (float)xsize / 2 ) + ( (float)x * 360.0 ) / (float)xsize;
       //printf( "%.6f|", longitude );
       // Convert to cartesian coordinates
-      float xc = ( PLANET_RADIUS + ( original[(int)x][y] * magnification ) ) * cos( latitude * M_PI / 180.0 ) * cos( longitude * M_PI / 180.0 );
-      float yc = ( PLANET_RADIUS + ( original[(int)x][y] * magnification ) ) * cos( latitude * M_PI / 180.0 ) * sin( longitude * M_PI / 180.0 );
-      float zc = ( PLANET_RADIUS + ( original[(int)x][y] * magnification ) ) * sin( latitude * M_PI / 180.0 );
+      float xc = ( planet_radius + ( original[(int)x][y] * magnification ) ) * cos( latitude * M_PI / 180.0 ) * cos( longitude * M_PI / 180.0 );
+      float yc = ( planet_radius + ( original[(int)x][y] * magnification ) ) * cos( latitude * M_PI / 180.0 ) * sin( longitude * M_PI / 180.0 );
+      float zc = ( planet_radius + ( original[(int)x][y] * magnification ) ) * sin( latitude * M_PI / 180.0 );
       // Calculate normals, set to point outwards
-      float nxc = ( PLANET_RADIUS * 2 * cos( latitude * M_PI / 180.0 ) * cos( longitude * M_PI / 180.0) );
-      float nyc = ( PLANET_RADIUS * 2 * cos( latitude * M_PI / 180.0 ) * sin( longitude * M_PI / 180.0) );
-      float nzc = ( PLANET_RADIUS * 2 * sin( latitude * M_PI / 180.0 ) );
+      float nxc = ( planet_radius * 2 * cos( latitude * M_PI / 180.0 ) * cos( longitude * M_PI / 180.0) );
+      float nyc = ( planet_radius * 2 * cos( latitude * M_PI / 180.0 ) * sin( longitude * M_PI / 180.0) );
+      float nzc = ( planet_radius * 2 * sin( latitude * M_PI / 180.0 ) );
       // Get colours
       int r, g, b;
       int idx;
@@ -333,7 +341,7 @@ int main( int argc, char *argv[] )
           }
           else
           {
-            idx = original[(int)x][y] / land_step;
+            idx = (float) original[(int)x][y] / land_step;
           }
           r = land_gradient[idx][0];
           g = land_gradient[idx][1];
@@ -348,7 +356,7 @@ int main( int argc, char *argv[] )
           }
           else
           {
-            idx = -original[(int)x][y] / sea_step;
+            idx = (float) -original[(int)x][y] / sea_step;
           }
           r = sea_gradient[SEA_ROWS - 1 - idx][0];
           g = sea_gradient[SEA_ROWS - 1 - idx][1];

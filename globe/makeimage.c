@@ -1,4 +1,4 @@
-// makeinage.c - PNG creator
+// makeimage.c - PNG creator
 // Copyright (C) 2020 John Davies
 //
 // This program is free software: you can redistribute it and/or modify
@@ -70,7 +70,7 @@ int main( int argc, char *argv[] )
   mask_file = fopen( argv[2], "r" );
   if( mask_file == NULL )
   {
-    printf( "ERROR: could not open mask file: %s\n", argv[1] );
+    printf( "ERROR: could not open mask file: %s\n", argv[2] );
     return EXIT_FAILURE;
   }
   // Read terrain LUT
@@ -86,7 +86,7 @@ int main( int argc, char *argv[] )
   // Read bathymetry LUT
   if( bath_LUT_file == NULL )
   {
-    printf( "ERROR: could not open bathymetry LUT file: %s\n", argv[3] );
+    printf( "ERROR: could not open bathymetry LUT file: %s\n", argv[4] );
     return EXIT_FAILURE;
   }
   // Check xsize factor
@@ -251,8 +251,8 @@ int main( int argc, char *argv[] )
 
   // Write image
   // Steps for shading
-  int land_step = max_height / LAND_ROWS;
-  int sea_step = -min_height / SEA_ROWS;
+  float land_step = (float) max_height / (float) LAND_ROWS;
+  float sea_step = -(float) min_height / (float) SEA_ROWS;
   int long_offset;
   if( longitude >= 0 )
   {
@@ -291,7 +291,12 @@ int main( int argc, char *argv[] )
           }
           else
           {
-            idx = original[xd][y] / land_step;
+            idx = ( float ) original[xd][y] / land_step;
+            if( idx >= LAND_ROWS )
+            {
+              // May happen at maximum value so set it to maximum row in this case
+              idx = LAND_ROWS - 1;
+            }
           }
           r = land_gradient[idx][0];
           g = land_gradient[idx][1];
@@ -306,7 +311,12 @@ int main( int argc, char *argv[] )
           }
           else
           {
-            idx = -original[xd][y] / sea_step;
+            idx = (float) -original[xd][y] / sea_step;
+            if( idx >= SEA_ROWS )
+            {
+              // May happen at maximum value so set it to maximum row in this case
+              idx = SEA_ROWS - 1;
+            }
           }
           r = sea_gradient[SEA_ROWS - 1 - idx][0];
           g = sea_gradient[SEA_ROWS - 1 - idx][1];

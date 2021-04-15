@@ -15,8 +15,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-#define PLANET_RADIUS 6371000 /* metres */
-
 // These values need to be used for LUT creation
 #define LAND_ROWS 256
 #define LAND_COLUMNS 3
